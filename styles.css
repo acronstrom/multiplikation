@@ -323,6 +323,7 @@ body {
 }
 
 .question-wrap {
+  position: relative;
   background: var(--surface);
   padding: 1.5rem;
   border-radius: var(--radius);
@@ -333,6 +334,30 @@ body {
   .question-wrap {
     padding: 2rem;
   }
+}
+
+.correct-toast {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%) translateY(-60px);
+  padding: 0.5rem 1rem;
+  background: var(--correct);
+  color: white;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.correct-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .question {
@@ -427,121 +452,6 @@ body {
   outline-offset: 2px;
 }
 
-/* Correct overlay – celebration */
-.correct-overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(34, 197, 94, 0.2);
-  pointer-events: none;
-  opacity: 0;
-  z-index: 100;
-  transition: opacity 0.2s;
-  cursor: pointer;
-}
-
-.correct-overlay.show {
-  opacity: 1;
-  pointer-events: auto;
-  animation: correctPop 0.4s ease;
-}
-
-@keyframes correctPop {
-  0% { transform: scale(0.8); opacity: 0; }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.correct-content {
-  background: var(--surface);
-  padding: 1.5rem 2rem;
-  border-radius: var(--radius);
-  border: 4px solid var(--correct);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  animation: contentBounce 0.5s ease 0.1s both;
-  margin: 1rem;
-  max-width: calc(100vw - 2rem);
-}
-
-@media (min-width: 400px) {
-  .correct-content {
-    padding: 2rem 3rem;
-  }
-}
-
-.correct-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--correct);
-  order: -1;
-}
-
-@media (min-width: 400px) {
-  .correct-avatar {
-    width: 64px;
-    height: 64px;
-  }
-}
-
-@keyframes contentBounce {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.15); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.correct-emoji {
-  font-size: 4rem;
-  color: var(--correct);
-  line-height: 1;
-}
-
-.correct-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--correct);
-}
-
-.correct-tap-hint {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-}
-
-/* Confetti container */
-.confetti {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.confetti span {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  animation: confettiFall 1.2s ease-out forwards;
-}
-
-@keyframes confettiFall {
-  0% {
-    opacity: 1;
-    transform: translateY(-20px) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(100vh) rotate(720deg);
-  }
-}
 
 /* Wrong overlay */
 .wrong-overlay {

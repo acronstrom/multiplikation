@@ -31,8 +31,6 @@
     timerEnd: null
   };
 
-  let pendingCorrectTimeout = null;
-
   const $ = (id) => document.getElementById(id);
   const modeScreen = $('mode-screen');
   const gameScreen = $('game-screen');
@@ -46,10 +44,8 @@
   const questionEl = $('question');
   const answerInput = $('answer-input');
   const submitBtn = $('submit-btn');
-  const correctOverlay = $('correct-overlay');
   const wrongOverlay = $('wrong-overlay');
   const correctAnswerDisplay = $('correct-answer-display');
-  const confettiContainer = $('confetti');
   const finalScoreEl = $('final-score');
   const resultsMessageEl = $('results-message');
   const playAgainBtn = $('play-again');
@@ -60,6 +56,7 @@
   const celebrationConfettiEl = $('celebration-confetti');
   const celebrationPlayAgainBtn = $('celebration-play-again');
   const celebrationChangeModeBtn = $('celebration-change-mode');
+  const correctToastEl = $('correct-toast');
 
   function showScreen(screen) {
     [modeScreen, gameScreen, resultsScreen, celebrationScreen].forEach(el => el && el.classList.remove('active'));
@@ -132,17 +129,6 @@
     answerInput.focus();
   }
 
-  function scheduleFocusAfterRender() {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        focusAnswerInput();
-      });
-    });
-    [50, 150, 300, 500, 800].forEach((ms) => {
-      setTimeout(focusAnswerInput, ms);
-    });
-  }
-
   function startQuestion() {
     const q = state.questions[state.currentIndex];
     questionEl.textContent = `${q.a} × ${q.b} = ?`;
@@ -160,7 +146,29 @@
     tickTimer();
 
     focusAnswerInput();
-    scheduleFocusAfterRender();
+    requestAnimationFrame(() => requestAnimationFrame(focusAnswerInput));
+    [100, 300, 600].forEach((ms) => setTimeout(focusAnswerInput, ms));
+  }
+
+  function showCorrectToast() {
+    if (correctToastEl) {
+      correctToastEl.classList.add('show');
+      correctToastEl.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        correctToastEl.classList.remove('show');
+        correctToastEl.setAttribute('aria-hidden', 'true');
+      }, 1200);
+    }
+  }
+
+  function advanceToNextQuestionImmediate() {
+    state.currentIndex++;
+    if (state.currentIndex >= state.questions.length) {
+      endRound();
+    } else {
+      updateScoreDisplay();
+      startQuestion();
+    }
   }
 
   function tickTimer() {
@@ -195,49 +203,6 @@
     const q = state.questions[state.currentIndex];
     showWrong(q.answer);
     nextAfterDelay(1500);
-  }
-
-  function advanceAfterCorrect() {
-    correctOverlay.classList.remove('show');
-    correctOverlay.setAttribute('aria-hidden', 'true');
-    state.currentIndex++;
-    if (state.currentIndex >= state.questions.length) {
-      endRound();
-    } else {
-      updateScoreDisplay();
-      startQuestion();
-    }
-  }
-
-  function onCorrectOverlayTap() {
-    if (!correctOverlay.classList.contains('show')) return;
-    if (pendingCorrectTimeout) {
-      clearTimeout(pendingCorrectTimeout);
-      pendingCorrectTimeout = null;
-    }
-    advanceAfterCorrect();
-    focusAnswerInput();
-  }
-
-  function showCorrect() {
-    correctOverlay.classList.add('show');
-    correctOverlay.setAttribute('aria-hidden', 'false');
-    spawnConfetti();
-    pendingCorrectTimeout = setTimeout(advanceAfterCorrect, 900);
-  }
-
-  function spawnConfetti() {
-    confettiContainer.innerHTML = '';
-    const count = 40;
-    for (let i = 0; i < count; i++) {
-      const span = document.createElement('span');
-      span.style.left = Math.random() * 100 + '%';
-      span.style.backgroundColor = CONFETTI_COLORS[randomInt(0, CONFETTI_COLORS.length - 1)];
-      span.style.animationDelay = Math.random() * 0.3 + 's';
-      span.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
-      confettiContainer.appendChild(span);
-    }
-    setTimeout(() => { confettiContainer.innerHTML = ''; }, 1500);
   }
 
   function showWrong(correctAnswer) {
@@ -279,7 +244,8 @@
     if (num === q.answer) {
       state.score++;
       updateScoreDisplay();
-      showCorrect();
+      showCorrectToast();
+      advanceToNextQuestionImmediate();
     } else {
       showWrong(q.answer);
       nextAfterDelay(1500);
@@ -350,16 +316,6 @@
     answerInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') submitAnswer();
     });
-
-    if (correctOverlay) {
-      correctOverlay.addEventListener('click', onCorrectOverlayTap);
-      correctOverlay.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onCorrectOverlayTap();
-        }
-      });
-    }
 
     playAgainBtn.addEventListener('click', () => startRound(state.mode));
     changeModeBtn.addEventListener('click', () => showScreen(modeScreen));

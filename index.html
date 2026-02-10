@@ -84,16 +84,8 @@
         </div>
       </div>
 
-      <!-- Correct answer celebration (tap to go to next question + focus input) -->
-      <div id="correct-overlay" class="correct-overlay" aria-hidden="true" role="button" tabindex="0">
-        <div class="correct-content">
-          <img src="assets/ebba.png" alt="" class="correct-avatar" width="64" height="64">
-          <span class="correct-emoji">✓</span>
-          <span class="correct-text">Rätt!</span>
-          <span class="correct-tap-hint">Tryck för nästa fråga</span>
-        </div>
-        <div class="confetti" id="confetti"></div>
-      </div>
+      <!-- Non-blocking toast when answer is correct (advance + focus happen immediately in same tap) -->
+      <div id="correct-toast" class="correct-toast" aria-hidden="true">✓ Rätt!</div>
 
       <!-- Wrong answer feedback -->
       <div id="wrong-overlay" class="wrong-overlay" aria-hidden="true">
