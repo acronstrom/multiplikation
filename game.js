@@ -35,6 +35,7 @@
   const modeScreen = $('mode-screen');
   const gameScreen = $('game-screen');
   const resultsScreen = $('results-screen');
+  const celebrationScreen = $('celebration-screen');
   const scoreEl = $('score');
   const questionNumEl = $('question-num');
   const timerBar = $('timer-bar');
@@ -52,10 +53,15 @@
   const playAgainBtn = $('play-again');
   const changeModeBtn = $('change-mode');
   const resultsTotalEl = $('results-total');
+  const celebrationScoreEl = $('celebration-score');
+  const celebrationTotalEl = $('celebration-total');
+  const celebrationConfettiEl = $('celebration-confetti');
+  const celebrationPlayAgainBtn = $('celebration-play-again');
+  const celebrationChangeModeBtn = $('celebration-change-mode');
 
   function showScreen(screen) {
-    [modeScreen, gameScreen, resultsScreen].forEach(el => el.classList.remove('active'));
-    screen.classList.add('active');
+    [modeScreen, gameScreen, resultsScreen, celebrationScreen].forEach(el => el && el.classList.remove('active'));
+    if (screen) screen.classList.add('active');
   }
 
   function randomInt(min, max) {
@@ -121,7 +127,6 @@
     const q = state.questions[state.currentIndex];
     questionEl.textContent = `${q.a} × ${q.b} = ?`;
     answerInput.value = '';
-    answerInput.focus();
     answerInput.disabled = false;
     submitBtn.disabled = false;
 
@@ -133,6 +138,13 @@
     state.timerId = setInterval(tickTimer, 50);
     timerWrap.classList.remove('warning');
     tickTimer();
+
+    requestAnimationFrame(() => {
+      answerInput.focus();
+      if (document.activeElement !== answerInput) {
+        setTimeout(() => answerInput.focus(), 50);
+      }
+    });
   }
 
   function tickTimer() {
@@ -240,18 +252,44 @@
     }
   }
 
+  function spawnCelebrationConfetti() {
+    if (!celebrationConfettiEl) return;
+    celebrationConfettiEl.innerHTML = '';
+    const colors = CONFETTI_COLORS.concat(['#22c55e', '#fbbf24']);
+    const count = 80;
+    for (let i = 0; i < count; i++) {
+      const span = document.createElement('span');
+      span.style.left = Math.random() * 100 + '%';
+      span.style.backgroundColor = colors[randomInt(0, colors.length - 1)];
+      span.style.animationDelay = Math.random() * 0.8 + 's';
+      span.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+      celebrationConfettiEl.appendChild(span);
+    }
+    setTimeout(() => { if (celebrationConfettiEl) celebrationConfettiEl.innerHTML = ''; }, 4000);
+  }
+
   function endRound() {
     stopTimer();
-    showScreen(resultsScreen);
-    finalScoreEl.textContent = state.score;
-    if (resultsTotalEl) resultsTotalEl.textContent = state.questions.length;
-    const pct = (state.score / state.questions.length) * 100;
-    if (pct >= 90) {
-      resultsMessageEl.textContent = 'Fantastiskt! Du är en multiplikationsmästare! 🏆';
-    } else if (pct >= 70) {
-      resultsMessageEl.textContent = 'Bra jobbat! Fortsätt träna så blir du ännu bättre. 👍';
+    const total = state.questions.length;
+    const isPerfect = state.score === total;
+
+    if (isPerfect) {
+      showScreen(celebrationScreen);
+      if (celebrationScoreEl) celebrationScoreEl.textContent = state.score;
+      if (celebrationTotalEl) celebrationTotalEl.textContent = total;
+      spawnCelebrationConfetti();
     } else {
-      resultsMessageEl.textContent = 'Fortsätt öva tabellerna – du klarar nästa omgång! 💪';
+      showScreen(resultsScreen);
+      finalScoreEl.textContent = state.score;
+      if (resultsTotalEl) resultsTotalEl.textContent = total;
+      const pct = (state.score / total) * 100;
+      if (pct >= 90) {
+        resultsMessageEl.textContent = 'Fantastiskt! Du är en multiplikationsmästare! 🏆';
+      } else if (pct >= 70) {
+        resultsMessageEl.textContent = 'Bra jobbat! Fortsätt träna så blir du ännu bättre. 👍';
+      } else {
+        resultsMessageEl.textContent = 'Fortsätt öva tabellerna – du klarar nästa omgång! 💪';
+      }
     }
   }
 
@@ -281,6 +319,8 @@
 
     playAgainBtn.addEventListener('click', () => startRound(state.mode));
     changeModeBtn.addEventListener('click', () => showScreen(modeScreen));
+    if (celebrationPlayAgainBtn) celebrationPlayAgainBtn.addEventListener('click', () => startRound(state.mode));
+    if (celebrationChangeModeBtn) celebrationChangeModeBtn.addEventListener('click', () => showScreen(modeScreen));
   }
 
   init();
