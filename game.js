@@ -31,6 +31,8 @@
     timerEnd: null
   };
 
+  let pendingCorrectTimeout = null;
+
   const $ = (id) => document.getElementById(id);
   const modeScreen = $('mode-screen');
   const gameScreen = $('game-screen');
@@ -186,14 +188,33 @@
     nextAfterDelay(1500);
   }
 
+  function advanceAfterCorrect() {
+    correctOverlay.classList.remove('show');
+    correctOverlay.setAttribute('aria-hidden', 'true');
+    state.currentIndex++;
+    if (state.currentIndex >= state.questions.length) {
+      endRound();
+    } else {
+      updateScoreDisplay();
+      startQuestion();
+    }
+  }
+
+  function onCorrectOverlayTap() {
+    if (!correctOverlay.classList.contains('show')) return;
+    if (pendingCorrectTimeout) {
+      clearTimeout(pendingCorrectTimeout);
+      pendingCorrectTimeout = null;
+    }
+    advanceAfterCorrect();
+    focusAnswerInput();
+  }
+
   function showCorrect() {
     correctOverlay.classList.add('show');
     correctOverlay.setAttribute('aria-hidden', 'false');
     spawnConfetti();
-    setTimeout(() => {
-      correctOverlay.classList.remove('show');
-      correctOverlay.setAttribute('aria-hidden', 'true');
-    }, 800);
+    pendingCorrectTimeout = setTimeout(advanceAfterCorrect, 900);
   }
 
   function spawnConfetti() {
@@ -250,7 +271,6 @@
       state.score++;
       updateScoreDisplay();
       showCorrect();
-      nextAfterDelay(900);
     } else {
       showWrong(q.answer);
       nextAfterDelay(1500);
@@ -321,6 +341,16 @@
     answerInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') submitAnswer();
     });
+
+    if (correctOverlay) {
+      correctOverlay.addEventListener('click', onCorrectOverlayTap);
+      correctOverlay.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onCorrectOverlayTap();
+        }
+      });
+    }
 
     playAgainBtn.addEventListener('click', () => startRound(state.mode));
     changeModeBtn.addEventListener('click', () => showScreen(modeScreen));

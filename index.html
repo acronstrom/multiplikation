@@ -84,12 +84,13 @@
         </div>
       </div>
 
-      <!-- Correct answer celebration -->
-      <div id="correct-overlay" class="correct-overlay" aria-hidden="true">
+      <!-- Correct answer celebration (tap to go to next question + focus input) -->
+      <div id="correct-overlay" class="correct-overlay" aria-hidden="true" role="button" tabindex="0">
         <div class="correct-content">
           <img src="assets/ebba.png" alt="" class="correct-avatar" width="64" height="64">
           <span class="correct-emoji">✓</span>
           <span class="correct-text">Rätt!</span>
+          <span class="correct-tap-hint">Tryck för nästa fråga</span>
         </div>
         <div class="confetti" id="confetti"></div>
       </div>
