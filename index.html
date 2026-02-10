@@ -15,8 +15,13 @@
 <body>
   <div class="app">
     <header class="header">
-      <h1>✖️ Ebbas Multiplikationsspel</h1>
-      <p class="subtitle">Träna tabellerna 1–10</p>
+      <div class="header-content">
+        <img src="assets/ebba.png" alt="Ebba" class="header-avatar" width="80" height="80">
+        <div class="header-text">
+          <h1>Ebbas Multiplikationsspel</h1>
+          <p class="subtitle">Träna tabellerna 1–10</p>
+        </div>
+      </div>
     </header>
 
     <!-- Mode selection screen -->
@@ -46,9 +51,9 @@
         <span class="round-options-label">Antal frågor per omgång:</span>
         <div class="round-count-btns">
           <button type="button" class="round-count-btn" data-count="5">5</button>
-          <button type="button" class="round-count-btn" data-count="10">10</button>
+          <button type="button" class="round-count-btn active" data-count="10">10</button>
           <button type="button" class="round-count-btn" data-count="15">15</button>
-          <button type="button" class="round-count-btn active" data-count="20">20</button>
+          <button type="button" class="round-count-btn" data-count="20">20</button>
         </div>
       </div>
     </section>
@@ -82,6 +87,7 @@
       <!-- Correct answer celebration -->
       <div id="correct-overlay" class="correct-overlay" aria-hidden="true">
         <div class="correct-content">
+          <img src="assets/ebba.png" alt="" class="correct-avatar" width="64" height="64">
           <span class="correct-emoji">✓</span>
           <span class="correct-text">Rätt!</span>
         </div>

@@ -21,7 +21,7 @@
 
   let state = {
     mode: null,
-    questionsPerRound: 20,
+    questionsPerRound: 10,
     timePerQuestion: TIME_EASY,
     questions: [],
     currentIndex: 0,
