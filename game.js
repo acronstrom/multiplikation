@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const QUESTIONS_PER_ROUND = 20;
+  const QUESTION_COUNTS = [5, 10, 15, 20];
   const TIME_EASY = 30;
   const TIME_MEDIUM = 10;
   const TIME_HARD = 5;
@@ -14,8 +14,14 @@
 
   const CONFETTI_COLORS = ['#22c55e', '#38bdf8', '#fbbf24', '#a78bfa', '#f472b6', '#f87171'];
 
+  /* Weight for factors: 2–9 prioritized, 1 and 10 less often */
+  function weightForFactor(n) {
+    return (n >= 2 && n <= 9) ? 2 : 1;
+  }
+
   let state = {
     mode: null,
+    questionsPerRound: 20,
     timePerQuestion: TIME_EASY,
     questions: [],
     currentIndex: 0,
@@ -45,6 +51,7 @@
   const resultsMessageEl = $('results-message');
   const playAgainBtn = $('play-again');
   const changeModeBtn = $('change-mode');
+  const resultsTotalEl = $('results-total');
 
   function showScreen(screen) {
     [modeScreen, gameScreen, resultsScreen].forEach(el => el.classList.remove('active'));
@@ -55,20 +62,46 @@
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function generateQuestions() {
-    const list = [];
-    for (let i = 0; i < QUESTIONS_PER_ROUND; i++) {
-      const a = randomInt(1, 10);
-      const b = randomInt(1, 10);
-      list.push({ a, b, answer: a * b });
+  /**
+   * All 100 pairs (1–10 × 1–10) with weights. Tables 2–9 get higher weight than 1 and 10.
+   * No repeated calculations in a round: we sample without replacement.
+   */
+  function generateQuestions(count) {
+    const pool = [];
+    for (let a = 1; a <= 10; a++) {
+      for (let b = 1; b <= 10; b++) {
+        const weight = weightForFactor(a) * weightForFactor(b);
+        pool.push({ a, b, answer: a * b, weight });
+      }
     }
-    return list;
+    const totalPossible = pool.length;
+    const n = Math.min(count, totalPossible);
+    const result = [];
+    const remaining = pool.map((x) => ({ ...x }));
+
+    for (let i = 0; i < n; i++) {
+      let totalWeight = 0;
+      for (let j = 0; j < remaining.length; j++) {
+        totalWeight += remaining[j].weight;
+      }
+      let r = Math.random() * totalWeight;
+      let idx = 0;
+      while (idx < remaining.length && r >= remaining[idx].weight) {
+        r -= remaining[idx].weight;
+        idx++;
+      }
+      if (idx >= remaining.length) idx = remaining.length - 1;
+      const chosen = remaining[idx];
+      result.push({ a: chosen.a, b: chosen.b, answer: chosen.answer });
+      remaining.splice(idx, 1);
+    }
+    return result;
   }
 
   function startRound(mode) {
     state.mode = mode;
     state.timePerQuestion = MODES[mode].time;
-    state.questions = generateQuestions();
+    state.questions = generateQuestions(state.questionsPerRound);
     state.currentIndex = 0;
     state.score = 0;
 
@@ -81,7 +114,7 @@
 
   function updateScoreDisplay() {
     scoreEl.textContent = state.score;
-    questionNumEl.textContent = `${state.currentIndex + 1} / ${QUESTIONS_PER_ROUND}`;
+    questionNumEl.textContent = `${state.currentIndex + 1} / ${state.questions.length}`;
   }
 
   function startQuestion() {
@@ -211,7 +244,8 @@
     stopTimer();
     showScreen(resultsScreen);
     finalScoreEl.textContent = state.score;
-    const pct = (state.score / QUESTIONS_PER_ROUND) * 100;
+    if (resultsTotalEl) resultsTotalEl.textContent = state.questions.length;
+    const pct = (state.score / state.questions.length) * 100;
     if (pct >= 90) {
       resultsMessageEl.textContent = 'Fantastiskt! Du är en multiplikationsmästare! 🏆';
     } else if (pct >= 70) {
@@ -222,6 +256,17 @@
   }
 
   function init() {
+    document.querySelectorAll('.round-count-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const count = parseInt(btn.getAttribute('data-count'), 10);
+        if (QUESTION_COUNTS.indexOf(count) !== -1) {
+          state.questionsPerRound = count;
+          document.querySelectorAll('.round-count-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      });
+    });
+
     document.querySelectorAll('.mode-card').forEach(btn => {
       btn.addEventListener('click', () => {
         const mode = btn.getAttribute('data-mode');

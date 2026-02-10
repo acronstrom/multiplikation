@@ -166,11 +166,56 @@ body {
   color: var(--text-muted);
 }
 
-.round-info {
-  text-align: center;
+.round-options {
   margin-top: 1.5rem;
+  text-align: center;
+}
+
+.round-options-label {
+  display: block;
   color: var(--text-muted);
   font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.round-count-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.round-count-btn {
+  min-width: 3rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 2px solid var(--surface-hover);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.round-count-btn:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+
+.round-count-btn.active {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.round-count-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Game screen */

@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Multiplikationsspelet – Träna gångertabellerna 1–10</title>
+  <title>Ebbas Multiplikationsspel – Träna gångertabellerna 1–10</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
 <body>
   <div class="app">
     <header class="header">
-      <h1>✖️ Multiplikationsspelet</h1>
+      <h1>✖️ Ebbas Multiplikationsspel</h1>
       <p class="subtitle">Träna tabellerna 1–10</p>
     </header>
 
@@ -42,7 +42,15 @@
           <span class="mode-desc">Snabb och fokuserad</span>
         </button>
       </div>
-      <p class="round-info">Varje omgång: 20 uträkningar</p>
+      <div class="round-options">
+        <span class="round-options-label">Antal frågor per omgång:</span>
+        <div class="round-count-btns">
+          <button type="button" class="round-count-btn" data-count="5">5</button>
+          <button type="button" class="round-count-btn" data-count="10">10</button>
+          <button type="button" class="round-count-btn" data-count="15">15</button>
+          <button type="button" class="round-count-btn active" data-count="20">20</button>
+        </div>
+      </div>
     </section>
 
     <!-- Game screen -->
@@ -91,7 +99,7 @@
       <h2>Omgång klar!</h2>
       <div class="results-card">
         <p class="results-score">
-          <span id="final-score">0</span> / 20
+          <span id="final-score">0</span> / <span id="results-total">20</span>
         </p>
         <p id="results-message" class="results-message"></p>
       </div>
