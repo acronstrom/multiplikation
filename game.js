@@ -123,6 +123,12 @@
     questionNumEl.textContent = `${state.currentIndex + 1} / ${state.questions.length}`;
   }
 
+  function focusAnswerInput() {
+    if (answerInput.disabled) return;
+    answerInput.scrollIntoView({ block: 'center', behavior: 'auto' });
+    answerInput.focus();
+  }
+
   function startQuestion() {
     const q = state.questions[state.currentIndex];
     questionEl.textContent = `${q.a} × ${q.b} = ?`;
@@ -139,11 +145,10 @@
     timerWrap.classList.remove('warning');
     tickTimer();
 
-    requestAnimationFrame(() => {
-      answerInput.focus();
-      if (document.activeElement !== answerInput) {
-        setTimeout(() => answerInput.focus(), 50);
-      }
+    focusAnswerInput();
+    requestAnimationFrame(focusAnswerInput);
+    [100, 250, 500].forEach((ms) => {
+      setTimeout(focusAnswerInput, ms);
     });
   }
 
