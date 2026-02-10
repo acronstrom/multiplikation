@@ -126,9 +126,21 @@
   }
 
   function focusAnswerInput() {
-    if (answerInput.disabled) return;
+    if (!answerInput || answerInput.disabled) return;
+    if (gameScreen && !gameScreen.classList.contains('active')) return;
     answerInput.scrollIntoView({ block: 'center', behavior: 'auto' });
     answerInput.focus();
+  }
+
+  function scheduleFocusAfterRender() {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        focusAnswerInput();
+      });
+    });
+    [50, 150, 300, 500, 800].forEach((ms) => {
+      setTimeout(focusAnswerInput, ms);
+    });
   }
 
   function startQuestion() {
@@ -148,10 +160,7 @@
     tickTimer();
 
     focusAnswerInput();
-    requestAnimationFrame(focusAnswerInput);
-    [100, 250, 500].forEach((ms) => {
-      setTimeout(focusAnswerInput, ms);
-    });
+    scheduleFocusAfterRender();
   }
 
   function tickTimer() {
